@@ -29,6 +29,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.graylog2.plugin.alarms.Alarm;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 
@@ -36,21 +37,24 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
  * @author Lennart Koopmann <lennart@socketfeed.com>
  */
 public class HipChatTrigger {
-
+	
     private final String apiToken;
     private final String room;
-    private final int SUCCESS_RESPONSE_CODE = 200;
-    private final String API_URL = "https://api.hipchat.com/v1/rooms/message";
+    private final String graylogUrl;		// example: http://greylog.mydomain.com/messages/
+    private final String elasticSearchUrl;	// example: http://localhost:9200/_search
+    private static final String API_URL = "https://api.hipchat.com/v1/rooms/message?auth_token=";
 
-    public HipChatTrigger(String apiToken, String room) {
+    public HipChatTrigger(String apiToken, String room, String graylogUrl, String elasticSearchUrl) {
         this.apiToken = apiToken;
         this.room = room;
+        this.graylogUrl = graylogUrl;
+        this.elasticSearchUrl = elasticSearchUrl;
     }
 
     public void trigger(Alarm alarm) throws AlarmCallbackException {
         Writer writer = null;
         try {
-          URL url = new URL("https://api.hipchat.com/v1/rooms/message?auth_token=" + this.apiToken);
+          URL url = new URL(API_URL + this.apiToken);
           HttpURLConnection conn = (HttpURLConnection)url.openConnection();
           conn.setDoOutput(true);
           conn.setRequestMethod("POST");
@@ -59,7 +63,7 @@ public class HipChatTrigger {
           writer.write(buildParametersFromAlarm(alarm));
           writer.flush();
 
-          if (conn.getResponseCode() != 200) {
+          if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
             throw new AlarmCallbackException("Could not POST event trigger. Expected HTTP response code <200> but got <" + conn.getResponseCode() + ">.");
           }
         } catch (IOException e) {
@@ -74,16 +78,49 @@ public class HipChatTrigger {
     }
 
     private String buildParametersFromAlarm(Alarm alarm) throws UnsupportedEncodingException {
-        Map<String, String> params = new HashMap<String, String>();
-        StringBuilder sb = new StringBuilder();
 
+    	GraylogMessage message = getMessage(alarm);
+        
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("message", message.getText());
         params.put("room_id", this.room);
         params.put("from", "Graylog2");
-        params.put("message", alarm.getTopic() + " - " + alarm.getDescription());
         params.put("message_format", "text");
         params.put("notify", "1");
+        params.put("color", 
+        		message.getLevel() <= 3 ? "red": 
+        		message.getLevel() >= 5 ? "green" : 
+        		"yellow");
+        
+        return composeHipChatQueryString(params);
+    }
 
-        boolean first = true;
+	private GraylogMessage getMessage(Alarm alarm) {
+		
+		GraylogMessage message = null;
+	
+		GraylogMongoClient mongoClient = new GraylogMongoClient();
+        String streamMessageId = mongoClient.getStreamMessageId(alarm);
+    	
+        if(streamMessageId != null) {
+        	GraylogElasticSearchClient elClient = new GraylogElasticSearchClient();
+        	message = elClient.getLastMessage(streamMessageId, this.graylogUrl, this.elasticSearchUrl);
+        	if(message.getText()!=null) {
+            	message.setText( alarm.getDescription() + "\n" + message.getText() );
+        	} else {
+        		message.setText(alarm.getDescription());
+        		message.setLevel(GraylogMessage.DEFAULT_LEVEL);
+        	}
+        } 
+        
+		return message;
+	}
+
+	private String composeHipChatQueryString(Map<String, String> params) throws UnsupportedEncodingException {
+		
+        StringBuilder sb = new StringBuilder();
+        
+		boolean first = true;
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (first) {
                 first = false;
@@ -93,7 +130,6 @@ public class HipChatTrigger {
 
             sb.append(URLEncoder.encode(param.getKey(), "UTF-8")).append("=").append(URLEncoder.encode(param.getValue(), "UTF-8"));
         }
-
         return sb.toString();
-    }
+	}
 }

@@ -22,6 +22,7 @@ package org.graylog2.hipchatalarmcallback.callback;
 
 import java.util.HashMap;
 import java.util.Map;
+
 import org.graylog2.plugin.alarms.Alarm;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
@@ -36,30 +37,44 @@ public class HipChatAlarmCallback implements AlarmCallback {
     
     private String apiToken;
     private String room;
-
+    private String graylogUrl;
+    private String elasticSearchUrl;
+    
     public void initialize(Map<String, String> config) throws AlarmCallbackConfigurationException {
         if (!configSet(config, "api_token")) {
-          throw new AlarmCallbackConfigurationException("Required config parameter api_token is missing.");
+          throw new AlarmCallbackConfigurationException("Required config parameter \"api_token\" is missing.");
         }
 
         if (!configSet(config, "room")) {
-          throw new AlarmCallbackConfigurationException("Required config parameter room is missing.");
+          throw new AlarmCallbackConfigurationException("Required config parameter \"room\" is missing.");
+        }
+
+        if (!configSet(config, "graylog_url")) {
+          throw new AlarmCallbackConfigurationException("Required config parameter \"graylog_url\" is missing.");
+        }
+
+        if (!configSet(config, "elastic_search_url")) {
+          throw new AlarmCallbackConfigurationException("Required config parameter \"elastic_search_url\" is missing.");
         }
 
         this.apiToken = ((String)config.get("api_token"));
         this.room = ((String)config.get("room"));
+        this.graylogUrl = ((String)config.get("graylog_url"));
+        this.elasticSearchUrl = ((String)config.get("elastic_search_url"));
     }
 
     public void call(Alarm alarm) throws AlarmCallbackException {
-        HipChatTrigger trigger = new HipChatTrigger(this.apiToken, this.room);
+        HipChatTrigger trigger = new HipChatTrigger(this.apiToken, this.room, this.graylogUrl, this.elasticSearchUrl);
         trigger.trigger(alarm);
     }
 
     public Map<String, String> getRequestedConfiguration() {
-        Map<String, String> config = new HashMap();
+        Map<String, String> config = new HashMap<String,String>();
 
         config.put("api_token", "Notification API token");
         config.put("room", "ID or name of room");
+        config.put("graylog_url", "http://<YOUR-GRAYLOG-HOST>/messages/");
+        config.put("elastic_search_url", "http://localhost:9200/_search");
 
         return config;
     }
