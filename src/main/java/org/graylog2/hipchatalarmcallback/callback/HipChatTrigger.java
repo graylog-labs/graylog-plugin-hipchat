@@ -87,10 +87,7 @@ public class HipChatTrigger {
         params.put("from", "Graylog2");
         params.put("message_format", "text");
         params.put("notify", "1");
-        params.put("color", 
-        		message.getLevel() <= 3 ? "red": 
-        		message.getLevel() >= 5 ? "green" : 
-        		"yellow");
+        params.put("color", message.getLevel() <= 3 ? "red": "yellow");
         
         return composeHipChatQueryString(params);
     }
