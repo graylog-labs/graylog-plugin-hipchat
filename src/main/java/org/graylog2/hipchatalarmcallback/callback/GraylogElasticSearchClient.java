@@ -25,7 +25,7 @@ public class GraylogElasticSearchClient {
 		
 		Writer writer = null;
         try {
-			URL url = new URL(elasticSearchUrl);
+			URL url = new URL(elasticSearchUrl+"/_search");
 	        HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 	        conn.setDoOutput(true);
 	        conn.setRequestMethod("POST");
@@ -51,7 +51,7 @@ public class GraylogElasticSearchClient {
 	    		
 	    		String id = (String)hit.get("_id");
 	    		String text = (String)source.get("message");
-	    		text = text + "\n" + graylogUrl + id;
+	    		text = text + "\n" + graylogUrl + "/messages/" + id;
 	    		message.setText( text );
 			} else {
 				LOG.error("unable to query elasticsearch. response code: "+conn.getResponseCode());

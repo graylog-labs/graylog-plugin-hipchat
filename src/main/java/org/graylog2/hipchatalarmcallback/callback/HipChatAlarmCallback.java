@@ -73,8 +73,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
 
         config.put("api_token", "Notification API token");
         config.put("room", "ID or name of room");
-        config.put("graylog_url", "http://<YOUR-GRAYLOG-HOST>/messages/");
-        config.put("elastic_search_url", "http://localhost:9200/_search");
+        config.put("graylog_url", "Graylog Host, e.g., http://<YOUR-GRAYLOG-HOST>");
+        config.put("elastic_search_url", "Elasticsearch host, e.g., http://localhost:9200");
 
         return config;
     }

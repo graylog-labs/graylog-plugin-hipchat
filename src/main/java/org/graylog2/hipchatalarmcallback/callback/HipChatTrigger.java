@@ -40,7 +40,7 @@ public class HipChatTrigger {
 	
     private final String apiToken;
     private final String room;
-    private final String graylogUrl;		// example: http://greylog.mydomain.com/messages/
+    private final String graylogUrl;		// example: http://greylog.mydomain.com
     private final String elasticSearchUrl;	// example: http://localhost:9200/_search
     private static final String API_URL = "https://api.hipchat.com/v1/rooms/message?auth_token=";
 
