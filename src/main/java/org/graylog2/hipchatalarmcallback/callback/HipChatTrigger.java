@@ -99,6 +99,7 @@ public class HipChatTrigger {
         params.put("from", "Graylog2");
         params.put("message_format", "text");
         params.put("notify", "1");
+        // set the HipChat message color to read or yellow
         params.put("color", message.getLevel() <= 3 ? "red": "yellow");
         
         // get the API URL query string
