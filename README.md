@@ -12,6 +12,7 @@ The HipChat messages contain the following details:
 1. The Alarm content  
 2. The GrayLog2 short message  
 3. A deep link to the message on your GrayLog2 instance  
+HipChat messages are also set to red or yellow depending on the message level in GrayLog2.
 
 Documentation: http://support.torch.sh/help/kb/plugins/hipchat-alarm-callback
 
