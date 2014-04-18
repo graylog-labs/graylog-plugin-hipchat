@@ -30,6 +30,7 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 
 /**
  * @author Lennart Koopmann <lennart@socketfeed.com>
+ * @author Markus Wuersch <markus@wuersch.net>
  */
 public class HipChatAlarmCallback implements AlarmCallback {
     

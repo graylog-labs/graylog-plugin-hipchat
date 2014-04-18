@@ -35,6 +35,7 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 
 /**
  * @author Lennart Koopmann <lennart@socketfeed.com>
+ * @author Markus Wuersch <markus@wuersch.net>
  */
 public class HipChatTrigger {
 	
@@ -51,23 +52,32 @@ public class HipChatTrigger {
         this.elasticSearchUrl = elasticSearchUrl;
     }
 
+    /**
+     * Handles a triggered Alarm. 
+     * 1. Finds detailed info for the alarm from MongoDB and elasticsearch.
+     * 2. Posts a message to HipChat. 
+     * @param alarm
+     * @throws AlarmCallbackException
+     */
     public void trigger(Alarm alarm) throws AlarmCallbackException {
         Writer writer = null;
         try {
-          URL url = new URL(API_URL + this.apiToken);
-          HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-          conn.setDoOutput(true);
-          conn.setRequestMethod("POST");
+        	// post to HipChat API
+        	URL url = new URL(API_URL + this.apiToken);
+        	HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+        	conn.setDoOutput(true);
+        	conn.setRequestMethod("POST");
 
-          writer = new OutputStreamWriter(conn.getOutputStream());
-          writer.write(buildParametersFromAlarm(alarm));
-          writer.flush();
+        	writer = new OutputStreamWriter(conn.getOutputStream());
+        	// get all data to be posted
+        	writer.write(buildParametersFromAlarm(alarm));
+        	writer.flush();
 
-          if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            throw new AlarmCallbackException("Could not POST event trigger. Expected HTTP response code <200> but got <" + conn.getResponseCode() + ">.");
-          }
+        	if (conn.getResponseCode() != HttpURLConnection.HTTP_OK) {
+        		throw new AlarmCallbackException("Could not POST event trigger. Expected HTTP response code <200> but got <" + conn.getResponseCode() + ">.");
+        	}
         } catch (IOException e) {
-          throw new AlarmCallbackException("Could not POST event trigger. IOException");
+        	throw new AlarmCallbackException("Could not POST event trigger. IOException");
         } finally {
             if (writer != null) {
                 try {
@@ -79,8 +89,10 @@ public class HipChatTrigger {
 
     private String buildParametersFromAlarm(Alarm alarm) throws UnsupportedEncodingException {
 
+    	// get last messag for this alarm
     	GraylogMessage message = getMessage(alarm);
         
+    	// create HipChat API parameters
         Map<String, String> params = new HashMap<String, String>();
         params.put("message", message.getText());
         params.put("room_id", this.room);
@@ -89,22 +101,34 @@ public class HipChatTrigger {
         params.put("notify", "1");
         params.put("color", message.getLevel() <= 3 ? "red": "yellow");
         
+        // get the API URL query string
         return composeHipChatQueryString(params);
     }
 
+    /**
+     * Gets the last relevant message for this Alarm. The message is found by:
+     * 1. finding the stream id based on the Alarm.topic
+     * 2. finding the last message in the stream  
+     * @param alarm The Alarm that was triggered.
+     * @return GraylogMessage for this Alarm.
+     */
 	private GraylogMessage getMessage(Alarm alarm) {
 		
 		GraylogMessage message = null;
-	
+
+		// get the id of graylog stream
 		GraylogMongoClient mongoClient = new GraylogMongoClient();
-        String streamMessageId = mongoClient.getStreamMessageId(alarm);
+        String streamMessageId = mongoClient.getStreamId(alarm);
     	
         if(streamMessageId != null) {
+        	// get the last message in the stream
         	GraylogElasticSearchClient elClient = new GraylogElasticSearchClient();
-        	message = elClient.getLastMessage(streamMessageId, this.graylogUrl, this.elasticSearchUrl);
+        	message = elClient.getLastMessageInStream(streamMessageId, this.graylogUrl, this.elasticSearchUrl);
         	if(message.getText()!=null) {
+        		// composing message including text from GrayLog2
             	message.setText( alarm.getDescription() + "\n" + message.getText() );
         	} else {
+        		// composing message using only data from the Alarm object
         		message.setText(alarm.getDescription());
         		message.setLevel(GraylogMessage.DEFAULT_LEVEL);
         	}
@@ -113,10 +137,17 @@ public class HipChatTrigger {
 		return message;
 	}
 
+	/**
+	 * Composes a URL query string from a map of parameters.
+	 * @param params The parameters used to build the query string. 
+	 * @return String Object of the URL query string
+	 * @throws UnsupportedEncodingException
+	 */
 	private String composeHipChatQueryString(Map<String, String> params) throws UnsupportedEncodingException {
 		
         StringBuilder sb = new StringBuilder();
         
+        // loop through the map and append query parameters
 		boolean first = true;
         for (Map.Entry<String, String> param : params.entrySet()) {
             if (first) {
