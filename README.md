@@ -1,5 +1,6 @@
 graylog2-plugin-alarmcallback-hipchat
 =====================================
+[![Build Status](https://travis-ci.org/Graylog2/graylog2-plugin-alarmcallback-hipchat.svg)](https://travis-ci.org/Graylog2/graylog2-plugin-alarmcallback-hipchat)
 
 Alarm callback that is writing to HipChat chatrooms
 
