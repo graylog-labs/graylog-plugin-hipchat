@@ -40,6 +40,7 @@ public class HipChatAlarmCallbackTest {
 
         final Map<String, Object> attributes = alarmCallback.getAttributes();
         assertThat(attributes.keySet(), hasItems("api_token", "room"));
+        assertThat((String) attributes.get("api_token"), equalTo("****"));
     }
 
     @Test

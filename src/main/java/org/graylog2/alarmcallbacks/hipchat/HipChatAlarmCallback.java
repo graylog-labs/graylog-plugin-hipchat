@@ -20,6 +20,7 @@
 
 package org.graylog2.alarmcallbacks.hipchat;
 
+import com.google.common.collect.Maps;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
@@ -55,7 +56,15 @@ public class HipChatAlarmCallback implements AlarmCallback {
 
     @Override
     public Map<String, Object> getAttributes() {
-        return configuration.getSource();
+        return Maps.transformEntries(configuration.getSource(), new Maps.EntryTransformer<String, Object, Object>() {
+            @Override
+            public Object transformEntry(String key, Object value) {
+                if (CK_API_TOKEN.equals(key)) {
+                    return "****";
+                }
+                return value;
+            }
+        });
     }
 
     @Override
