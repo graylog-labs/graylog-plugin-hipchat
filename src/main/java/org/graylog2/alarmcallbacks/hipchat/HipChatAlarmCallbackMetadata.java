@@ -28,16 +28,16 @@ public class HipChatAlarmCallbackMetadata implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(1, 0, 0);
+        return new Version(0, 90, 0);
     }
 
     @Override
     public String getDescription() {
-        return "Alarm callback plugin that sends all stream alerts to a defined HipChat room.";
+        return "Alarm callback plugin that sends all stream alerts to a HipChat room.";
     }
 
     @Override
     public Version getRequiredVersion() {
-        return new Version(0, 21, 0);
+        return new Version(0, 90, 0);
     }
 }
