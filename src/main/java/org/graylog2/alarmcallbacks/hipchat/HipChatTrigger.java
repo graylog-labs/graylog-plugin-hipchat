@@ -37,17 +37,19 @@ public class HipChatTrigger {
     private final String apiToken;
     private final String room;
     private final String color;
+    private final boolean notify;
     private final ObjectMapper objectMapper;
 
-    public HipChatTrigger(final String apiToken, final String room, final String color) {
-        this(apiToken, room, color, new ObjectMapper());
+    public HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify) {
+        this(apiToken, room, color, notify, new ObjectMapper());
     }
 
-    HipChatTrigger(final String apiToken, final String room, final String color,
+    HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify,
                    final ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.room = room;
         this.color = color;
+        this.notify = notify;
         this.objectMapper = objectMapper;
     }
 
@@ -89,7 +91,7 @@ public class HipChatTrigger {
                 alertCondition.getStream().getTitle(), alertCondition.getStream().getId(),
                 alertCondition.getSearchHits().size());
 
-        return new RoomNotification(message, color, true);
+        return new RoomNotification(message, color, notify);
     }
 
     public static class RoomNotification {

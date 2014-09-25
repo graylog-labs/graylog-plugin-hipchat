@@ -29,6 +29,7 @@ import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationException;
 import org.graylog2.plugin.configuration.ConfigurationRequest;
+import org.graylog2.plugin.configuration.fields.BooleanField;
 import org.graylog2.plugin.configuration.fields.ConfigurationField;
 import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
@@ -41,6 +42,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
     private static final String CK_API_TOKEN = "api_token";
     private static final String CK_ROOM = "room";
     private static final String CK_COLOR = "color";
+    private static final String CK_NOTIFY = "notify";
 
     // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
     private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
@@ -64,7 +66,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
         final HipChatTrigger trigger = new HipChatTrigger(
                 configuration.getString(CK_API_TOKEN),
                 configuration.getString(CK_ROOM),
-                configuration.getString(CK_COLOR));
+                configuration.getString(CK_COLOR),
+                configuration.getBoolean(CK_NOTIFY));
         trigger.trigger(result.getTriggeredCondition());
     }
 
@@ -116,6 +119,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
                         CK_COLOR, "Color", "yellow", VALID_COLORS,
                         "Background color for message", ConfigurationField.Optional.OPTIONAL)
         );
+        configurationRequest.addField(new BooleanField(
+                CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
 
         return configurationRequest;
     }

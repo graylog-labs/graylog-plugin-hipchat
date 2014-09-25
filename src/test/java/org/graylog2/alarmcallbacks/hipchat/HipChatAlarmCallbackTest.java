@@ -27,7 +27,8 @@ public class HipChatAlarmCallbackTest {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
-                "color", "yellow"
+                "color", "yellow",
+                "notify", true
         ));
         alarmCallback.initialize(configuration);
     }
@@ -37,12 +38,13 @@ public class HipChatAlarmCallbackTest {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
-                "color", "yellow"
+                "color", "yellow",
+                "notify", true
         ));
         alarmCallback.initialize(configuration);
 
         final Map<String, Object> attributes = alarmCallback.getAttributes();
-        assertThat(attributes.keySet(), hasItems("api_token", "room", "color"));
+        assertThat(attributes.keySet(), hasItems("api_token", "room", "color", "notify"));
         assertThat((String) attributes.get("api_token"), equalTo("****"));
     }
 
@@ -52,7 +54,8 @@ public class HipChatAlarmCallbackTest {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
-                "color", "yellow"
+                "color", "yellow",
+                "notify", true
 
         ));
         alarmCallback.initialize(configuration);
@@ -105,7 +108,7 @@ public class HipChatAlarmCallbackTest {
     @Test
     public void testGetRequestedConfiguration() {
         assertThat(alarmCallback.getRequestedConfiguration().asList().keySet(),
-                hasItems("api_token", "room"));
+                hasItems("api_token", "room", "color", "notify"));
     }
 
     @Test
