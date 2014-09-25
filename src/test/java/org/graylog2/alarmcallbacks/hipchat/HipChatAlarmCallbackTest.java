@@ -26,7 +26,8 @@ public class HipChatAlarmCallbackTest {
     public void testInitialize() throws AlarmCallbackConfigurationException {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
-                "room", "TEST_room"
+                "room", "TEST_room",
+                "color", "yellow"
         ));
         alarmCallback.initialize(configuration);
     }
@@ -35,12 +36,13 @@ public class HipChatAlarmCallbackTest {
     public void testGetAttributes() throws AlarmCallbackConfigurationException {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
-                "room", "TEST_room"
+                "room", "TEST_room",
+                "color", "yellow"
         ));
         alarmCallback.initialize(configuration);
 
         final Map<String, Object> attributes = alarmCallback.getAttributes();
-        assertThat(attributes.keySet(), hasItems("api_token", "room"));
+        assertThat(attributes.keySet(), hasItems("api_token", "room", "color"));
         assertThat((String) attributes.get("api_token"), equalTo("****"));
     }
 
@@ -49,7 +51,9 @@ public class HipChatAlarmCallbackTest {
             throws AlarmCallbackConfigurationException, ConfigurationException {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
-                "room", "TEST_room"
+                "room", "TEST_room",
+                "color", "yellow"
+
         ));
         alarmCallback.initialize(configuration);
         alarmCallback.checkConfiguration();
@@ -81,6 +85,18 @@ public class HipChatAlarmCallbackTest {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
                 "room", Strings.repeat("a", 101)
+        ));
+        alarmCallback.initialize(configuration);
+        alarmCallback.checkConfiguration();
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void checkConfigurationFailsIfColorIsInvalid()
+            throws AlarmCallbackConfigurationException, ConfigurationException {
+        final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
+                "api_token", "TEST_api_token",
+                "room", "TEST_room",
+                "color", "INVALID"
         ));
         alarmCallback.initialize(configuration);
         alarmCallback.checkConfiguration();

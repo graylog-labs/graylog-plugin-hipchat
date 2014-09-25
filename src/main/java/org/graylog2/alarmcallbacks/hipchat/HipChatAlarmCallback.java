@@ -20,6 +20,7 @@
 
 package org.graylog2.alarmcallbacks.hipchat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
@@ -29,6 +30,7 @@ import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationException;
 import org.graylog2.plugin.configuration.ConfigurationRequest;
 import org.graylog2.plugin.configuration.fields.ConfigurationField;
+import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.streams.Stream;
 
@@ -38,6 +40,17 @@ public class HipChatAlarmCallback implements AlarmCallback {
     private static final String NAME = "HipChat alarm callback";
     private static final String CK_API_TOKEN = "api_token";
     private static final String CK_ROOM = "room";
+    private static final String CK_COLOR = "color";
+
+    // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
+    private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
+            .put("yellow", "yellow")
+            .put("green", "green")
+            .put("red", "red")
+            .put("purple", "purple")
+            .put("gray", "gray")
+            .put("random", "random")
+            .build();
 
     private Configuration configuration;
 
@@ -50,7 +63,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
     public void call(Stream stream, AlertCondition.CheckResult result) throws AlarmCallbackException {
         final HipChatTrigger trigger = new HipChatTrigger(
                 configuration.getString(CK_API_TOKEN),
-                configuration.getString(CK_ROOM));
+                configuration.getString(CK_ROOM),
+                configuration.getString(CK_COLOR));
         trigger.trigger(result.getTriggeredCondition());
     }
 
@@ -80,6 +94,10 @@ public class HipChatAlarmCallback implements AlarmCallback {
         if (configuration.getString(CK_ROOM).length() > 100) {
             throw new ConfigurationException(CK_ROOM + " must be less than 100 characters long.");
         }
+
+        if (configuration.stringIsSet(CK_COLOR) && !VALID_COLORS.containsKey(configuration.getString(CK_COLOR))) {
+            throw new ConfigurationException(CK_COLOR + " is not a valid color.");
+        }
     }
 
     @Override
@@ -87,12 +105,16 @@ public class HipChatAlarmCallback implements AlarmCallback {
         final ConfigurationRequest configurationRequest = new ConfigurationRequest();
 
         configurationRequest.addField(new TextField(
-                        CK_API_TOKEN, "API Token", "", "HipChat API (v1) token",
+                        CK_API_TOKEN, "Room Token", "", "HipChat room token",
                         ConfigurationField.Optional.NOT_OPTIONAL)
         );
         configurationRequest.addField(new TextField(
                         CK_ROOM, "Room", "", "ID or name of HipChat room",
                         ConfigurationField.Optional.NOT_OPTIONAL)
+        );
+        configurationRequest.addField(new DropdownField(
+                        CK_COLOR, "Color", "yellow", VALID_COLORS,
+                        "Background color for message", ConfigurationField.Optional.OPTIONAL)
         );
 
         return configurationRequest;

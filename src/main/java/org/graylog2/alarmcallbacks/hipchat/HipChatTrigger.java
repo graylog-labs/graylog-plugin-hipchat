@@ -36,16 +36,18 @@ import java.net.URLEncoder;
 public class HipChatTrigger {
     private final String apiToken;
     private final String room;
+    private final String color;
     private final ObjectMapper objectMapper;
 
-    public HipChatTrigger(final String apiToken, final String room) {
-        this(apiToken, room, new ObjectMapper());
+    public HipChatTrigger(final String apiToken, final String room, final String color) {
+        this(apiToken, room, color, new ObjectMapper());
     }
 
-    HipChatTrigger(final String apiToken, final String room,
+    HipChatTrigger(final String apiToken, final String room, final String color,
                    final ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.room = room;
+        this.color = color;
         this.objectMapper = objectMapper;
     }
 
@@ -87,7 +89,7 @@ public class HipChatTrigger {
                 alertCondition.getStream().getTitle(), alertCondition.getStream().getId(),
                 alertCondition.getSearchHits().size());
 
-        return new RoomNotification(message, true);
+        return new RoomNotification(message, color, true);
     }
 
     public static class RoomNotification {
@@ -97,9 +99,12 @@ public class HipChatTrigger {
         public boolean notify = true;
         @JsonProperty("message_format")
         public final String messageFormat = "text";
+        @JsonProperty
+        public String color = "yellow";
 
-        public RoomNotification(String message, boolean notify) {
+        public RoomNotification(String message, String color, boolean notify) {
             this.message = message;
+            this.color = color;
             this.notify = notify;
         }
     }
