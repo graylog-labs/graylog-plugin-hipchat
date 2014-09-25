@@ -20,37 +20,40 @@
 
 package org.graylog2.alarmcallbacks.hipchat;
 
-import com.google.common.base.Joiner;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Map;
 
 public class HipChatTrigger {
     private final String apiToken;
     private final String room;
-    private final String senderName;
+    private final ObjectMapper objectMapper;
 
-    public HipChatTrigger(final String apiToken, final String room, final String senderName) {
+    public HipChatTrigger(final String apiToken, final String room) {
+        this(apiToken, room, new ObjectMapper());
+    }
+
+    HipChatTrigger(final String apiToken, final String room,
+                   final ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.room = room;
-        this.senderName = senderName;
+        this.objectMapper = objectMapper;
     }
 
     public void trigger(AlertCondition alertCondition) throws AlarmCallbackException {
         final URL url;
         try {
-            url = new URL("https://api.hipchat.com/v1/rooms/message?auth_token=" + this.apiToken);
-        } catch (MalformedURLException e) {
+            url = new URL("https://api.hipchat.com/v2/room/" + URLEncoder.encode(room, "UTF-8") + "/notification");
+        } catch (MalformedURLException | UnsupportedEncodingException e) {
             throw new AlarmCallbackException("Error while constructing URL of HipChat API.", e);
         }
 
@@ -59,15 +62,16 @@ public class HipChatTrigger {
             conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
+            conn.addRequestProperty("Authorization", "Bearer " + apiToken);
         } catch (IOException e) {
             throw new AlarmCallbackException("Could not open connection to HipChat API", e);
         }
 
-        try (final Writer writer = new OutputStreamWriter(conn.getOutputStream())) {
-            writer.write(buildParametersFromAlertCondition(alertCondition));
-            writer.flush();
+        try (final OutputStream outputStream = conn.getOutputStream()) {
+            outputStream.write(objectMapper.writeValueAsBytes(buildRoomNotification(alertCondition)));
+            outputStream.flush();
 
-            if (conn.getResponseCode() != 200) {
+            if (conn.getResponseCode() != 204) {
                 throw new AlarmCallbackException("Unexpected HTTP response status " + conn.getResponseCode());
             }
         } catch (IOException e) {
@@ -75,18 +79,27 @@ public class HipChatTrigger {
         }
     }
 
-    private String buildParametersFromAlertCondition(AlertCondition alertCondition) throws UnsupportedEncodingException {
-        // See https://www.hipchat.com/docs/api/method/rooms/message for valid parameters
-        final Map<String, String> params = ImmutableMap.of(
-                "room_id", URLEncoder.encode(room, "UTF-8"),
-                "from", URLEncoder.encode(senderName, "UTF-8"),
-                "message", URLEncoder.encode(alertCondition.getDescription(), "UTF-8"),
-                "message_format", "text",
-                "notify", "1");
+    private RoomNotification buildRoomNotification(final AlertCondition alertCondition) {
+        // See https://www.hipchat.com/docs/apiv2/method/send_room_notification for valid parameters
+        final String message = String.format("[Graylog2] %s (Stream %s <%s>, %d search hits)",
+                alertCondition.getDescription(),
+                alertCondition.getStream().getTitle(), alertCondition.getStream().getId(),
+                alertCondition.getSearchHits().size());
 
-        return Joiner.on('&')
-                .skipNulls()
-                .withKeyValueSeparator("=")
-                .join(params);
+        return new RoomNotification(message, true);
+    }
+
+    public static class RoomNotification {
+        @JsonProperty
+        public String message;
+        @JsonProperty
+        public boolean notify = true;
+        @JsonProperty("message_format")
+        public final String messageFormat = "text";
+
+        public RoomNotification(String message, boolean notify) {
+            this.message = message;
+            this.notify = notify;
+        }
     }
 }

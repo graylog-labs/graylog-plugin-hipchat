@@ -20,7 +20,6 @@
 
 package org.graylog2.alarmcallbacks.hipchat;
 
-import com.google.common.base.CharMatcher;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
@@ -34,13 +33,10 @@ import org.graylog2.plugin.streams.Stream;
 
 import java.util.Map;
 
-import static com.google.common.base.Strings.isNullOrEmpty;
-
 public class HipChatAlarmCallback implements AlarmCallback {
     private static final String NAME = "HipChat alarm callback";
     private static final String CK_API_TOKEN = "api_token";
     private static final String CK_ROOM = "room";
-    private static final String CK_SENDER_NAME = "sender_name";
 
     private Configuration configuration;
 
@@ -53,8 +49,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
     public void call(Stream stream, AlertCondition.CheckResult result) throws AlarmCallbackException {
         final HipChatTrigger trigger = new HipChatTrigger(
                 configuration.getString(CK_API_TOKEN),
-                configuration.getString(CK_ROOM),
-                configuration.getString(CK_SENDER_NAME));
+                configuration.getString(CK_ROOM));
         trigger.trigger(result.getTriggeredCondition());
     }
 
@@ -72,20 +67,6 @@ public class HipChatAlarmCallback implements AlarmCallback {
         if (!configuration.stringIsSet(CK_ROOM)) {
             throw new ConfigurationException(CK_ROOM + " is mandatory and must not be empty.");
         }
-
-        final String senderName = configuration.getString(CK_SENDER_NAME);
-        if (isNullOrEmpty(senderName)) {
-            throw new ConfigurationException(CK_SENDER_NAME + " is mandatory and must not be empty.");
-        }
-
-        if (senderName.length() > 15) {
-            throw new ConfigurationException(CK_SENDER_NAME + " must be less than 15 characters long.");
-        }
-
-        if (!CharMatcher.anyOf("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_ ")
-                .matchesAllOf(senderName)) {
-            throw new ConfigurationException(CK_SENDER_NAME + " may only contain letters, numbers, -, _, and spaces.");
-        }
     }
 
     @Override
@@ -98,11 +79,6 @@ public class HipChatAlarmCallback implements AlarmCallback {
         );
         configurationRequest.addField(new TextField(
                         CK_ROOM, "Room", "", "ID or name of HipChat room",
-                        ConfigurationField.Optional.NOT_OPTIONAL)
-        );
-        configurationRequest.addField(new TextField(
-                        CK_SENDER_NAME, "Sender name", "Graylog2",
-                        "Name of the sender (less than 15 characters long, only  letters, numbers, -, _, and spaces)",
                         ConfigurationField.Optional.NOT_OPTIONAL)
         );
 
