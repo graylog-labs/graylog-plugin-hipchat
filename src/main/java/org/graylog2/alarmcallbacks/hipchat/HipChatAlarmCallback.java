@@ -76,6 +76,10 @@ public class HipChatAlarmCallback implements AlarmCallback {
         if (!configuration.stringIsSet(CK_ROOM)) {
             throw new ConfigurationException(CK_ROOM + " is mandatory and must not be empty.");
         }
+
+        if (configuration.getString(CK_ROOM).length() > 100) {
+            throw new ConfigurationException(CK_ROOM + " must be less than 100 characters long.");
+        }
     }
 
     @Override

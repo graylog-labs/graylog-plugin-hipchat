@@ -1,5 +1,6 @@
 package org.graylog2.alarmcallbacks.hipchat;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
 import org.graylog2.plugin.configuration.Configuration;
@@ -69,6 +70,17 @@ public class HipChatAlarmCallbackTest {
             throws AlarmCallbackConfigurationException, ConfigurationException {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token"
+        ));
+        alarmCallback.initialize(configuration);
+        alarmCallback.checkConfiguration();
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void checkConfigurationFailsIfRoomIsTooLong()
+            throws AlarmCallbackConfigurationException, ConfigurationException {
+        final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
+                "api_token", "TEST_api_token",
+                "room", Strings.repeat("a", 101)
         ));
         alarmCallback.initialize(configuration);
         alarmCallback.checkConfiguration();
