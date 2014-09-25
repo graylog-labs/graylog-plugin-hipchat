@@ -63,6 +63,7 @@ public class HipChatTrigger {
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.addRequestProperty("Authorization", "Bearer " + apiToken);
+            conn.addRequestProperty("Content-Type", "application/json");
         } catch (IOException e) {
             throw new AlarmCallbackException("Could not open connection to HipChat API", e);
         }
