@@ -68,7 +68,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 configuration.getString(CK_ROOM),
                 configuration.getString(CK_COLOR),
                 configuration.getBoolean(CK_NOTIFY));
-        trigger.trigger(result.getTriggeredCondition());
+        trigger.trigger(result.getTriggeredCondition(), result);
     }
 
     @Override

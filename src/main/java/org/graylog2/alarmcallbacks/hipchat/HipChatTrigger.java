@@ -53,7 +53,7 @@ public class HipChatTrigger {
         this.objectMapper = objectMapper;
     }
 
-    public void trigger(AlertCondition alertCondition) throws AlarmCallbackException {
+    public void trigger(AlertCondition condition, AlertCondition.CheckResult alert) throws AlarmCallbackException {
         final URL url;
         try {
             url = new URL("https://api.hipchat.com/v2/room/" + URLEncoder.encode(room, "UTF-8") + "/notification");
@@ -73,7 +73,7 @@ public class HipChatTrigger {
         }
 
         try (final OutputStream outputStream = conn.getOutputStream()) {
-            outputStream.write(objectMapper.writeValueAsBytes(buildRoomNotification(alertCondition)));
+            outputStream.write(objectMapper.writeValueAsBytes(buildRoomNotification(condition, alert)));
             outputStream.flush();
 
             if (conn.getResponseCode() != 204) {
@@ -84,12 +84,12 @@ public class HipChatTrigger {
         }
     }
 
-    private RoomNotification buildRoomNotification(final AlertCondition alertCondition) {
+    private RoomNotification buildRoomNotification(AlertCondition condition, AlertCondition.CheckResult alert) {
         // See https://www.hipchat.com/docs/apiv2/method/send_room_notification for valid parameters
-        final String message = String.format("[Graylog2] %s (Stream %s <%s>, %d search hits)",
-                alertCondition.getDescription(),
-                alertCondition.getStream().getTitle(), alertCondition.getStream().getId(),
-                alertCondition.getSearchHits().size());
+        final String message = String.format("Stream <%s> alert: %s",
+                condition.getStream().getTitle(),
+                alert.getResultDescription()
+        );
 
         return new RoomNotification(message, color, notify);
     }
