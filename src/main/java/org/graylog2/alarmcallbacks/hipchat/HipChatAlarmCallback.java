@@ -1,5 +1,5 @@
 /**
- * Copyright 2013 Lennart Koopmann <lennart@socketfeed.com>
+ * Copyright 2013-2014 TORCH GmbH
  *
  * This file is part of Graylog2.
  *
