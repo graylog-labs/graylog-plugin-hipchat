@@ -43,12 +43,12 @@ public class HipChatAlarmCallbackMetadata implements PluginMetaData {
 
     @Override
     public URI getURL() {
-        return URI.create("http://www.torch.sh");
+        return URI.create("http://www.graylog2.org/");
     }
 
     @Override
     public Version getVersion() {
-        return new Version(0, 90, 0);
+        return new Version(1, 0, 0);
     }
 
     @Override
