@@ -1,7 +1,7 @@
-# Graylog2 HipChat alarm callback
+# Graylog HipChat alarm callback
 [![Build Status](https://travis-ci.org/Graylog2/graylog2-alarmcallback-hipchat.svg)](https://travis-ci.org/Graylog2/graylog2-alarmcallback-hipchat)
 
-An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog2](http://www.graylog2.org/).
+An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog](http://www.graylog2.org/).
 
 ## Build
 

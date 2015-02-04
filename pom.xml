@@ -2,21 +2,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.graylog2</groupId>
-    <artifactId>graylog2-alarmcallback-hipchat</artifactId>
+    <groupId>org.graylog</groupId>
+    <artifactId>graylog-alarmcallback-hipchat</artifactId>
     <version>1.1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>graylog2-alarmcallback-hipchat</name>
-    <description>Graylog2 HipChat Alarmcallback plugin</description>
-    <url>https://www.graylog2.org</url>
+    <name>graylog-alarmcallback-hipchat</name>
+    <description>Graylog HipChat Alarmcallback plugin</description>
+    <url>https://www.graylog.org</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
         <graylog2.plugin-dir>/usr/share/graylog2-server/plugin</graylog2.plugin-dir>
-        <graylog2.version>1.0.0-rc.1</graylog2.version>
+        <graylog2.version>1.0.0-rc.2</graylog2.version>
     </properties>
 
     <licenses>
@@ -64,8 +64,7 @@
                         </goals>
                         <configuration>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                         </configuration>
                     </execution>
@@ -97,7 +96,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>rpm-maven-plugin</artifactId>
-                <version>2.1.1</version>
+                <version>2.1.2</version>
                 <configuration>
                     <group>Application/Internet</group>
                     <prefixes>
