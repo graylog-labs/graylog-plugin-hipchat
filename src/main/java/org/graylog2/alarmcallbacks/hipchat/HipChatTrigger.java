@@ -21,6 +21,7 @@ package org.graylog2.alarmcallbacks.hipchat;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Strings;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 
@@ -37,25 +38,32 @@ public class HipChatTrigger {
     private final String room;
     private final String color;
     private final boolean notify;
+    private final String apiURL;
     private final ObjectMapper objectMapper;
 
-    public HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify) {
-        this(apiToken, room, color, notify, new ObjectMapper());
+    public HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify,
+                          final String apiURL) {
+        this(apiToken, room, color, notify, apiURL, new ObjectMapper());
     }
 
-    HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify,
-                   final ObjectMapper objectMapper) {
+    HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify, 
+                   final String apiURL, final ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.room = room;
         this.color = color;
         this.notify = notify;
+        this.apiURL = apiURL;
         this.objectMapper = objectMapper;
     }
 
     public void trigger(AlertCondition condition, AlertCondition.CheckResult alert) throws AlarmCallbackException {
         final URL url;
         try {
-            url = new URL("https://api.hipchat.com/v2/room/" + URLEncoder.encode(room, "UTF-8") + "/notification");
+            if (Strings.isNullOrEmpty(apiURL)) {
+                url = new URL("https://api.hipchat.com/v2/room/" + URLEncoder.encode(room, "UTF-8") + "/notification");
+            } else {
+                url = new URL(apiURL + "/v2/room/" + URLEncoder.encode(room, "UTF-8") + "/notification");
+            }
         } catch (MalformedURLException | UnsupportedEncodingException e) {
             throw new AlarmCallbackException("Error while constructing URL of HipChat API.", e);
         }
