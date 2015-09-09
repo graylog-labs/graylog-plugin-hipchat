@@ -2,3 +2,25 @@ language: java
 jdk:
   - oraclejdk7
   - oraclejdk8
+addons:
+  apt:
+    packages:
+      - rpm
+before_deploy:
+  - mvn jdeb:jdeb && export RELEASE_DEB_FILE=$(ls target/*.deb)
+  - mvn rpm:rpm && export RELEASE_RPM_FILE=$(find target/ -name '*.rpm' | tail -1)
+  - rm -f target/original-*.jar
+  - export RELEASE_PKG_FILE=$(ls target/*.jar)
+  - echo "Deploying release to GitHub releases"
+deploy:
+  provider: releases
+  api_key:
+    secure: J/Z92xEPgZsu4BlCgNl7zE6dtJZOt0NjE1Glr9kXXSx19RJnZQd1hPkDyXlnAxTJpSJvZTokwHDN6PvohNDaHaB0AXlTcYTzjIb4ADPteafCuhQcbT78i74YMYA9z1+a3eDWVrOE6nx2Vi6grfpSNWyLFQDVdfU5MlAt/F7tzoY=
+  file:
+    - "${RELEASE_PKG_FILE}"
+    - "${RELEASE_DEB_FILE}"
+    - "${RELEASE_RPM_FILE}"
+  skip_cleanup: true
+  on:
+    tags: true
+    jdk: oraclejdk7
