@@ -7,7 +7,7 @@
     <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>graylog-alarmcallback-hipchat</name>
+    <name>graylog-plugin-hipchat</name>
     <description>Graylog HipChat Alarmcallback plugin</description>
     <url>https://www.graylog.org</url>
 
