@@ -3,7 +3,7 @@
 
     <groupId>org.graylog.plugins</groupId>
     <artifactId>graylog-plugin-hipchat</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>jar</packaging>
 
     <name>graylog-plugin-hipchat</name>
@@ -14,7 +14,7 @@
         <connection>scm:git:git@github.com:Graylog2/graylog-plugin-hipchat.git</connection>
         <developerConnection>scm:git:git@github.com:Graylog2/graylog-plugin-hipchat.git</developerConnection>
         <url>https://github.com/Graylog2/graylog-plugin-hipchat</url>
-        <tag>HEAD</tag>
+        <tag>1.2.0</tag>
     </scm>
 
     <properties>
