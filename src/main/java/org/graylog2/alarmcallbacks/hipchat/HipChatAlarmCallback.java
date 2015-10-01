@@ -42,6 +42,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
     private static final String CK_ROOM = "room";
     private static final String CK_COLOR = "color";
     private static final String CK_NOTIFY = "notify";
+    private static final String CK_API_URL = "api_url";
 
     // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
     private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
@@ -66,7 +67,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 configuration.getString(CK_API_TOKEN),
                 configuration.getString(CK_ROOM),
                 configuration.getString(CK_COLOR),
-                configuration.getBoolean(CK_NOTIFY));
+                configuration.getBoolean(CK_NOTIFY),
+                configuration.getString(CK_API_URL));
         trigger.trigger(result.getTriggeredCondition(), result);
     }
 
@@ -119,7 +121,10 @@ public class HipChatAlarmCallback implements AlarmCallback {
                         "Background color for message", ConfigurationField.Optional.OPTIONAL)
         );
         configurationRequest.addField(new BooleanField(
-                CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
+                        CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
+        configurationRequest.addField(new TextField(
+                        CK_API_URL, "HipChat API URL", "https://api.hipchat.com",
+                        "Specify different API URL for self hosted HipChat", ConfigurationField.Optional.OPTIONAL));
 
         return configurationRequest;
     }
