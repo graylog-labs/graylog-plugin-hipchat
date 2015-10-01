@@ -50,7 +50,7 @@ public class HipChatAlarmCallbackMetadata implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(1, 1, 1);
+        return new Version(1, 2, 0);
     }
 
     @Override
