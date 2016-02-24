@@ -47,7 +47,8 @@ public class HipChatAlarmCallbackTest {
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
                 "color", "yellow",
-                "notify", true
+                "notify", true,
+                "msg_template", "Stream template"
         ));
         alarmCallback.initialize(configuration);
     }
@@ -58,12 +59,13 @@ public class HipChatAlarmCallbackTest {
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
                 "color", "yellow",
-                "notify", true
+                "notify", true,
+                "msg_template", "Stream template"
         ));
         alarmCallback.initialize(configuration);
 
         final Map<String, Object> attributes = alarmCallback.getAttributes();
-        assertThat(attributes.keySet(), hasItems("api_token", "room", "color", "notify"));
+        assertThat(attributes.keySet(), hasItems("api_token", "room", "color", "notify", "msg_template"));
         assertThat((String) attributes.get("api_token"), equalTo("****"));
     }
 
@@ -73,8 +75,9 @@ public class HipChatAlarmCallbackTest {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token",
                 "room", "TEST_room",
-                "color", "yellow",
-                "notify", true
+                "color", "yellow",                
+                "notify", true,
+                "msg_template", "Stream template" 
 
         ));
         alarmCallback.initialize(configuration);
@@ -96,6 +99,19 @@ public class HipChatAlarmCallbackTest {
             throws AlarmCallbackConfigurationException, ConfigurationException {
         final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
                 "api_token", "TEST_api_token"
+        ));
+        alarmCallback.initialize(configuration);
+        alarmCallback.checkConfiguration();
+    }
+
+    @Test(expected = ConfigurationException.class)
+    public void checkConfigurationFailsIfMsgTemplateIsMissing()
+            throws AlarmCallbackConfigurationException, ConfigurationException {
+        final Configuration configuration = new Configuration(ImmutableMap.<String, Object>of(
+                "api_token", "TEST_api_token",
+                "room", "TEST_room",
+                "color", "yellow",                
+                "notify", true
         ));
         alarmCallback.initialize(configuration);
         alarmCallback.checkConfiguration();
@@ -127,11 +143,12 @@ public class HipChatAlarmCallbackTest {
     @Test
     public void testGetRequestedConfiguration() {
         assertThat(alarmCallback.getRequestedConfiguration().asList().keySet(),
-                hasItems("api_token", "room", "color", "notify"));
+                hasItems("api_token", "room", "color", "notify", "msg_template"));
     }
 
     @Test
     public void testGetName() {
         assertThat(alarmCallback.getName(), equalTo("HipChat alarm callback"));
     }
+
 }
