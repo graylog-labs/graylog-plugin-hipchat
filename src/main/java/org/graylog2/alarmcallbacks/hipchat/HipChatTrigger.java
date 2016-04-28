@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
+import org.graylog2.plugin.configuration.Configuration;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,26 +33,33 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.*;
 
 public class HipChatTrigger {
     private final String apiToken;
     private final String room;
     private final String color;
     private final boolean notify;
+    private final String msgTemplate;
     private final String apiURL;
     private final ObjectMapper objectMapper;
 
-    public HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify,
-                          final String apiURL) {
-        this(apiToken, room, color, notify, apiURL, new ObjectMapper());
+    public HipChatTrigger(Configuration configuration) {
+    	this(configuration.getString(CK_API_TOKEN),
+    		 configuration.getString(CK_ROOM),
+    		 configuration.getString(CK_COLOR),
+    		 configuration.getBoolean(CK_NOTIFY),
+    		 configuration.getString(CK_MSG_TEMPLATE),
+    		 configuration.getString(CK_API_URL), new ObjectMapper());
     }
 
     HipChatTrigger(final String apiToken, final String room, final String color, final boolean notify, 
-                   final String apiURL, final ObjectMapper objectMapper) {
+    			   final String msgTemplate, final String apiURL, final ObjectMapper objectMapper) {
         this.apiToken = apiToken;
         this.room = room;
         this.color = color;
         this.notify = notify;
+        this.msgTemplate=msgTemplate;
         this.apiURL = apiURL;
         this.objectMapper = objectMapper;
     }
@@ -91,13 +99,10 @@ public class HipChatTrigger {
         }
     }
 
-    private RoomNotification buildRoomNotification(AlertCondition condition, AlertCondition.CheckResult alert) {
+    protected RoomNotification buildRoomNotification(AlertCondition condition, AlertCondition.CheckResult alert) {
         // See https://www.hipchat.com/docs/apiv2/method/send_room_notification for valid parameters
-        final String message = String.format("Stream <%s> alert: %s",
-                condition.getStream().getTitle(),
-                alert.getResultDescription()
-        );
-
+        final String message = this.msgTemplate.replaceFirst("<name>", condition.getStream().getTitle())
+        		.replaceFirst("<description>", alert.getResultDescription());
         return new RoomNotification(message, color, notify);
     }
 

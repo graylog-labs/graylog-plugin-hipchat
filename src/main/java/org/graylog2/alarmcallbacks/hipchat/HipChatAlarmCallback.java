@@ -19,8 +19,16 @@
  */
 package org.graylog2.alarmcallbacks.hipchat;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_API_TOKEN;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_API_URL;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_COLOR;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_MSG_TEMPLATE;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_NOTIFY;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.CK_ROOM;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmConstants.NAME;
+
+import java.util.Map;
+
 import org.graylog2.plugin.alarms.AlertCondition;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallback;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
@@ -34,16 +42,10 @@ import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.streams.Stream;
 
-import java.util.Map;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 public class HipChatAlarmCallback implements AlarmCallback {
-    private static final String NAME = "HipChat alarm callback";
-    private static final String CK_API_TOKEN = "api_token";
-    private static final String CK_ROOM = "room";
-    private static final String CK_COLOR = "color";
-    private static final String CK_NOTIFY = "notify";
-    private static final String CK_API_URL = "api_url";
-
     // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
     private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
             .put("yellow", "yellow")
@@ -63,12 +65,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
 
     @Override
     public void call(Stream stream, AlertCondition.CheckResult result) throws AlarmCallbackException {
-        final HipChatTrigger trigger = new HipChatTrigger(
-                configuration.getString(CK_API_TOKEN),
-                configuration.getString(CK_ROOM),
-                configuration.getString(CK_COLOR),
-                configuration.getBoolean(CK_NOTIFY),
-                configuration.getString(CK_API_URL));
+        final HipChatTrigger trigger = new HipChatTrigger(configuration);
         trigger.trigger(result.getTriggeredCondition(), result);
     }
 
@@ -93,6 +90,10 @@ public class HipChatAlarmCallback implements AlarmCallback {
 
         if (!configuration.stringIsSet(CK_ROOM)) {
             throw new ConfigurationException(CK_ROOM + " is mandatory and must not be empty.");
+        }
+
+        if (!configuration.stringIsSet(CK_MSG_TEMPLATE)) {
+            throw new ConfigurationException(CK_MSG_TEMPLATE + " is mandatory and must not be empty.");
         }
 
         if (configuration.getString(CK_ROOM).length() > 100) {
@@ -122,6 +123,11 @@ public class HipChatAlarmCallback implements AlarmCallback {
         );
         configurationRequest.addField(new BooleanField(
                         CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
+        configurationRequest.addField(new TextField(
+                        CK_MSG_TEMPLATE, "Message Template", "Stream <<name>> alert: <description>",
+                        "The message to be sent is templatized.\nUse <name> to input the stream name." +
+                        "\nUse <description> to input the alert description.",
+                        ConfigurationField.Optional.NOT_OPTIONAL));
         configurationRequest.addField(new TextField(
                         CK_API_URL, "HipChat API URL", "https://api.hipchat.com",
                         "Specify different API URL for self hosted HipChat", ConfigurationField.Optional.OPTIONAL));
