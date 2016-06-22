@@ -79,17 +79,17 @@ public class HipChatAlarmCallback implements AlarmCallback {
     }
 
     protected static URI getGraylogBaseUrl(Configuration configuration) throws AlarmCallbackException {
-        URI graylogBaseUrl = null;
         String graylogBaseUrlString = configuration.getString(CK_GRAYLOG_BASE_URL);
-        if (graylogBaseUrlString != null) {
-            try {
-                String urlWithoutTrailingSlash = graylogBaseUrlString.endsWith("/") ? graylogBaseUrlString.substring(0, graylogBaseUrlString.length() - 1) : graylogBaseUrlString;
-                graylogBaseUrl = new URI(urlWithoutTrailingSlash);
-            } catch (URISyntaxException e) {
-                throw new AlarmCallbackException("Graylog URL '" + graylogBaseUrlString + "' is not a valid URI.");
-            }
+        if (graylogBaseUrlString == null || graylogBaseUrlString.trim().isEmpty()) {
+            return null;
         }
-        return graylogBaseUrl;
+        try {
+            String urlWithoutTrailingSlash =
+                    graylogBaseUrlString.endsWith("/") ? graylogBaseUrlString.substring(0, graylogBaseUrlString.length() - 1) : graylogBaseUrlString;
+            return new URI(urlWithoutTrailingSlash);
+        } catch (URISyntaxException e) {
+            throw new AlarmCallbackException("Graylog URL '" + graylogBaseUrlString + "' is not a valid URI.");
+        }
     }
 
     @Override
@@ -146,8 +146,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 CK_API_URL, "HipChat API URL", "https://api.hipchat.com",
                 "Specify different API URL for self hosted HipChat", ConfigurationField.Optional.OPTIONAL));
         configurationRequest.addField(new TextField(
-                CK_GRAYLOG_BASE_URL, "Graylog Base URL", "https://your.graylogserver.com/",
-                "Graylog base URL for linking to the stream.", ConfigurationField.Optional.OPTIONAL));
+                CK_GRAYLOG_BASE_URL, "Graylog Base URL", "",
+                "Graylog base URL for linking to the stream (e.g. https://your.graylogserver.com).", ConfigurationField.Optional.OPTIONAL));
         configurationRequest.addField(new TextField(
                 CK_MESSAGE_TEMPLATE, "Message Template", "",
                 "Custom message template (same as email templates).", ConfigurationField.Optional.OPTIONAL));

@@ -121,13 +121,17 @@ public class HipChatTrigger {
         }
     }
 
+    protected static boolean invalidTemplate(String template) {
+        return template == null || template.trim().isEmpty();
+    }
+
     //TODO: Copied and adapted from FormattedEmailAlertSender; could be refactored into a general utility for alerts?
     private String buildBody(AlertCondition condition, AlertCondition.CheckResult alert) {
         String template;
-        if (this.messageTemplate != null) {
-            template = this.messageTemplate;
-        } else {
+        if (invalidTemplate(this.messageTemplate)) {
             template = FormattedEmailAlertSender.bodyTemplate;
+        } else {
+            template = this.messageTemplate;
         }
         Map<String, Object> model = this.getModel(condition, alert);
         return this.engine.transform(template, model);

@@ -33,6 +33,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 
 import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmCallback.getGraylogBaseUrl;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatTrigger.invalidTemplate;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.junit.Assert.*;
@@ -166,5 +167,11 @@ public class HipChatAlarmCallbackTest {
                         "color", "INVALID",
                         "graylog_base_url", "invalid URI"
                 )));
+    }
+
+    @Test
+    public void invalidTemplateCheckOk() {
+        assertTrue(invalidTemplate(null));
+        assertTrue(invalidTemplate(" "));
     }
 }
