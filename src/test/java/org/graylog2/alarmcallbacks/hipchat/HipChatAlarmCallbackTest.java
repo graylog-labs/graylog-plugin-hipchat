@@ -22,16 +22,20 @@ package org.graylog2.alarmcallbacks.hipchat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmCallback.getGraylogBaseUrl;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class HipChatAlarmCallbackTest {
     private HipChatAlarmCallback alarmCallback;
@@ -133,5 +137,34 @@ public class HipChatAlarmCallbackTest {
     @Test
     public void testGetName() {
         assertThat(alarmCallback.getName(), equalTo("HipChat alarm callback"));
+    }
+
+    @Test
+    public void graylogBaseUrlRetrievalWorks() throws AlarmCallbackException, URISyntaxException {
+        assertNull(getGraylogBaseUrl(
+                new Configuration(ImmutableMap.<String, Object>of(
+                        "api_token", "TEST_api_token",
+                        "room", "TEST_room",
+                        "color", "INVALID"
+                ))));
+        assertEquals("Trailing '/' gets removed automatically",
+                new URI("https://test.graylog.com"), getGraylogBaseUrl(
+                        new Configuration(ImmutableMap.<String, Object>of(
+                                "api_token", "TEST_api_token",
+                                "room", "TEST_room",
+                                "color", "INVALID",
+                                "graylog_base_url", "https://test.graylog.com/"
+                        ))));
+    }
+
+    @Test(expected = AlarmCallbackException.class)
+    public void graylogBaseUrlRetrievalInvalidUri() throws AlarmCallbackException {
+        getGraylogBaseUrl(
+                new Configuration(ImmutableMap.<String, Object>of(
+                        "api_token", "TEST_api_token",
+                        "room", "TEST_room",
+                        "color", "INVALID",
+                        "graylog_base_url", "invalid URI"
+                )));
     }
 }

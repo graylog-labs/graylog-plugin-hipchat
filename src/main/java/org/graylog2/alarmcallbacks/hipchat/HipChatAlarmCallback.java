@@ -34,6 +34,8 @@ import org.graylog2.plugin.configuration.fields.DropdownField;
 import org.graylog2.plugin.configuration.fields.TextField;
 import org.graylog2.plugin.streams.Stream;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 public class HipChatAlarmCallback implements AlarmCallback {
@@ -43,6 +45,8 @@ public class HipChatAlarmCallback implements AlarmCallback {
     private static final String CK_COLOR = "color";
     private static final String CK_NOTIFY = "notify";
     private static final String CK_API_URL = "api_url";
+    private static final String CK_GRAYLOG_BASE_URL = "graylog_base_url";
+    private static final String CK_MESSAGE_TEMPLATE = "message_template";
 
     // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
     private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
@@ -68,8 +72,24 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 configuration.getString(CK_ROOM),
                 configuration.getString(CK_COLOR),
                 configuration.getBoolean(CK_NOTIFY),
-                configuration.getString(CK_API_URL));
+                configuration.getString(CK_API_URL),
+                configuration.getString(CK_MESSAGE_TEMPLATE),
+                getGraylogBaseUrl(configuration));
         trigger.trigger(result.getTriggeredCondition(), result);
+    }
+
+    protected static URI getGraylogBaseUrl(Configuration configuration) throws AlarmCallbackException {
+        URI graylogBaseUrl = null;
+        String graylogBaseUrlString = configuration.getString(CK_GRAYLOG_BASE_URL);
+        if (graylogBaseUrlString != null) {
+            try {
+                String urlWithoutTrailingSlash = graylogBaseUrlString.endsWith("/") ? graylogBaseUrlString.substring(0, graylogBaseUrlString.length() - 1) : graylogBaseUrlString;
+                graylogBaseUrl = new URI(urlWithoutTrailingSlash);
+            } catch (URISyntaxException e) {
+                throw new AlarmCallbackException("Graylog URL '" + graylogBaseUrlString + "' is not a valid URI.");
+            }
+        }
+        return graylogBaseUrl;
     }
 
     @Override
@@ -109,22 +129,28 @@ public class HipChatAlarmCallback implements AlarmCallback {
         final ConfigurationRequest configurationRequest = new ConfigurationRequest();
 
         configurationRequest.addField(new TextField(
-                        CK_API_TOKEN, "Room Token", "", "HipChat room token",
-                        ConfigurationField.Optional.NOT_OPTIONAL)
+                CK_API_TOKEN, "Room Token", "", "HipChat room token",
+                ConfigurationField.Optional.NOT_OPTIONAL)
         );
         configurationRequest.addField(new TextField(
-                        CK_ROOM, "Room", "", "ID or name of HipChat room",
-                        ConfigurationField.Optional.NOT_OPTIONAL)
+                CK_ROOM, "Room", "", "ID or name of HipChat room",
+                ConfigurationField.Optional.NOT_OPTIONAL)
         );
         configurationRequest.addField(new DropdownField(
-                        CK_COLOR, "Color", "yellow", VALID_COLORS,
-                        "Background color for message", ConfigurationField.Optional.OPTIONAL)
+                CK_COLOR, "Color", "yellow", VALID_COLORS,
+                "Background color for message", ConfigurationField.Optional.OPTIONAL)
         );
         configurationRequest.addField(new BooleanField(
-                        CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
+                CK_NOTIFY, "Notify", true, "Whether this message should trigger a user notification."));
         configurationRequest.addField(new TextField(
-                        CK_API_URL, "HipChat API URL", "https://api.hipchat.com",
-                        "Specify different API URL for self hosted HipChat", ConfigurationField.Optional.OPTIONAL));
+                CK_API_URL, "HipChat API URL", "https://api.hipchat.com",
+                "Specify different API URL for self hosted HipChat", ConfigurationField.Optional.OPTIONAL));
+        configurationRequest.addField(new TextField(
+                CK_GRAYLOG_BASE_URL, "Graylog Base URL", "https://your.graylogserver.com/",
+                "Graylog base URL for linking to the stream.", ConfigurationField.Optional.OPTIONAL));
+        configurationRequest.addField(new TextField(
+                CK_MESSAGE_TEMPLATE, "Message Template", "",
+                "Custom message template (same as email templates).", ConfigurationField.Optional.OPTIONAL));
 
         return configurationRequest;
     }
