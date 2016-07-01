@@ -36,7 +36,10 @@ import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmCallback.getGraylo
 import static org.graylog2.alarmcallbacks.hipchat.HipChatTrigger.invalidTemplate;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class HipChatAlarmCallbackTest {
     private HipChatAlarmCallback alarmCallback;
