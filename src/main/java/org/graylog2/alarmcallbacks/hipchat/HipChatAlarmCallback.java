@@ -74,12 +74,11 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 configuration.getBoolean(CK_NOTIFY),
                 configuration.getString(CK_API_URL),
                 configuration.getString(CK_MESSAGE_TEMPLATE),
-                getGraylogBaseUrl(configuration));
+                getGraylogBaseUrl(configuration.getString(CK_GRAYLOG_BASE_URL)));
         trigger.trigger(result.getTriggeredCondition(), result);
     }
 
-    protected static URI getGraylogBaseUrl(Configuration configuration) throws AlarmCallbackException {
-        String graylogBaseUrlString = configuration.getString(CK_GRAYLOG_BASE_URL);
+    protected static URI getGraylogBaseUrl(String graylogBaseUrlString) throws AlarmCallbackException {
         if (graylogBaseUrlString == null || graylogBaseUrlString.trim().isEmpty()) {
             return null;
         }
