@@ -145,31 +145,15 @@ public class HipChatAlarmCallbackTest {
 
     @Test
     public void graylogBaseUrlRetrievalWorks() throws AlarmCallbackException, URISyntaxException {
-        assertNull(getGraylogBaseUrl(
-                new Configuration(ImmutableMap.<String, Object>of(
-                        "api_token", "TEST_api_token",
-                        "room", "TEST_room",
-                        "color", "INVALID"
-                ))));
+        assertNull(getGraylogBaseUrl(null));
         assertEquals("Trailing '/' gets removed automatically",
                 new URI("https://test.graylog.com"), getGraylogBaseUrl(
-                        new Configuration(ImmutableMap.<String, Object>of(
-                                "api_token", "TEST_api_token",
-                                "room", "TEST_room",
-                                "color", "INVALID",
-                                "graylog_base_url", "https://test.graylog.com/"
-                        ))));
+                        "https://test.graylog.com/"));
     }
 
     @Test(expected = AlarmCallbackException.class)
     public void graylogBaseUrlRetrievalInvalidUri() throws AlarmCallbackException {
-        getGraylogBaseUrl(
-                new Configuration(ImmutableMap.<String, Object>of(
-                        "api_token", "TEST_api_token",
-                        "room", "TEST_room",
-                        "color", "INVALID",
-                        "graylog_base_url", "invalid URI"
-                )));
+        getGraylogBaseUrl("invalid URI");
     }
 
     @Test
