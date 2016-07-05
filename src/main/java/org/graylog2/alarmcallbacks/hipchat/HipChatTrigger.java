@@ -110,7 +110,7 @@ public class HipChatTrigger {
     }
 
     //TODO: Copied from StaticEmailAlertSender, could be moved to a utility class?
-    public static String buildStreamDetailsURL(URI baseUri, AlertCondition.CheckResult checkResult, Stream stream) {
+    public static String buildStreamDetailsURL(URI baseUri, AlertCondition.CheckResult checkResult, Stream stream) throws AlarmCallbackException {
         if (baseUri != null && !Strings.isNullOrEmpty(baseUri.getHost())) {
             int time = 5;
             if (checkResult.getTriggeredCondition().getParameters().get("time") != null) {
@@ -122,7 +122,7 @@ public class HipChatTrigger {
             String alertEnd = Tools.getISO8601String(dateAlertEnd);
             return baseUri + "/streams/" + stream.getId() + "/messages?rangetype=absolute&from=" + alertStart + "&to=" + alertEnd + "&q=*";
         } else {
-            return "Please configure \'transport_email_web_interface_url\' in your Graylog configuration file.";
+            throw new AlarmCallbackException("Please configure a valid Graylog Base URL in the alarm callback parameters.");
         }
     }
 
@@ -131,7 +131,7 @@ public class HipChatTrigger {
     }
 
     //TODO: Copied and adapted from FormattedEmailAlertSender; could be refactored into a general utility for alerts?
-    private String buildBody(AlertCondition condition, AlertCondition.CheckResult alert) {
+    private String buildBody(AlertCondition condition, AlertCondition.CheckResult alert) throws AlarmCallbackException {
         String template;
         if (invalidTemplate(this.messageTemplate)) {
             template = FormattedEmailAlertSender.bodyTemplate;
@@ -143,7 +143,7 @@ public class HipChatTrigger {
     }
 
     //TODO: Copied from FormattedEmailAlertSender
-    private Map<String, Object> getModel(AlertCondition condition, AlertCondition.CheckResult alert) {
+    private Map<String, Object> getModel(AlertCondition condition, AlertCondition.CheckResult alert) throws AlarmCallbackException {
         Stream stream = condition.getStream();
         List<Message> messages = new ArrayList<>();
         for (MessageSummary messageSummary : alert.getMatchingMessages()) {
@@ -160,7 +160,7 @@ public class HipChatTrigger {
         return model;
     }
 
-    private RoomNotification buildRoomNotification(AlertCondition condition, AlertCondition.CheckResult alert) {
+    private RoomNotification buildRoomNotification(AlertCondition condition, AlertCondition.CheckResult alert) throws AlarmCallbackException {
         final String message = this.buildBody(condition, alert);
         return new RoomNotification(message, color, notify);
     }
