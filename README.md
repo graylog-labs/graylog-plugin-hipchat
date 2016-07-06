@@ -5,7 +5,7 @@ HipChat Plugin for Graylog
 
 An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog](https://www.graylog.org/).
 
-**Required Graylog version:** 2.0 and later.
+**Required Graylog version:** 2.0.0 and later.
 
 Please use version 1.2.0 of this plugin if you are still running Graylog 1.x
 
@@ -13,16 +13,16 @@ Please use version 1.2.0 of this plugin if you are still running Graylog 1.x
 
 [Download the plugin](https://github.com/Graylog2/graylog-plugin-hipchat/releases)
 and place the `.jar` file in your Graylog plugin directory. The plugin directory
-is the `plugins/` folder relative from your `graylog-server` directory by default
-and can be configured in your `graylog.conf` file.
+is the `plugins/` directory relative from your Graylog installation path by default
+and can be configured in the `graylog.conf` file.
 
-Restart `graylog-server` and you are done.
+Restart Graylog and you are done.
 
 ## Usage
 
 Custom templates can be defined with the same [JMTE syntax](https://cdn.rawgit.com/DJCordhose/jmte/master/doc/index.html) used in [the email templates](http://docs.graylog.org/en/2.0/pages/streams.html#email-alert-callback), as long as they only work on the [HTML subset supported by the HipChat API](https://developer.atlassian.com/hipchat/guide/sending-messages).
 
- For example, support for a custom field `myField` could look like:
+For example the following template includes the custom field named `myField` in the HipChat message:
 
 ```html
 ${if stream_url}<a href="${stream_url}">${end}
@@ -49,11 +49,11 @@ ${else}
 ${end}
 ```
 
-If no custom template is given, the default email template is used.
+If no custom template has been configured, the default email template is used.
 
 ## Build
 
-This project is using Maven and requires Java 7 or higher.
+This project is using Maven and requires Java 8 or higher.
 
 You can build a plugin (JAR) with `mvn package`.
 
