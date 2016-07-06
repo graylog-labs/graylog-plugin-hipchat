@@ -18,6 +18,39 @@ and can be configured in your `graylog.conf` file.
 
 Restart `graylog-server` and you are done.
 
+## Usage
+
+Custom templates can be defined with the same [JMTE syntax](https://cdn.rawgit.com/DJCordhose/jmte/master/doc/index.html) used in [the email templates](http://docs.graylog.org/en/2.0/pages/streams.html#email-alert-callback), as long as they only work on the [HTML subset supported by the HipChat API](https://developer.atlassian.com/hipchat/guide/sending-messages).
+
+ For example, support for a custom field `myField` could look like:
+
+```html
+${if stream_url}<a href="${stream_url}">${end}
+<strong>Alert for ${stream.title}</strong>
+${if stream_url}
+</a>
+${end}
+<i>(${check_result.triggeredCondition})</i>
+<br/>
+<i>${check_result.resultDescription}, triggered at ${check_result.triggeredAt}</i>
+<br/>
+${if backlog}Last messages accounting for this alert:<br/>
+<table align="left">
+<tr><th>My Field</th><th>Details</th></tr>
+${foreach backlog message}<br/>
+<tr>
+    <td><b>${message.fields.myField}</b></td>
+    <td><code>${message.source}, ${message.id}</code></td>
+</tr>
+</table>
+${end}
+${else}
+<i>(No messages to display.)</i>
+${end}
+```
+
+If no custom template is given, the default email template is used.
+
 ## Build
 
 This project is using Maven and requires Java 7 or higher.

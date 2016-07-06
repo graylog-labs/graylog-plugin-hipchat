@@ -22,16 +22,25 @@ package org.graylog2.alarmcallbacks.hipchat;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import org.graylog2.plugin.alarms.callbacks.AlarmCallbackConfigurationException;
+import org.graylog2.plugin.alarms.callbacks.AlarmCallbackException;
 import org.graylog2.plugin.configuration.Configuration;
 import org.graylog2.plugin.configuration.ConfigurationException;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Map;
 
+import static org.graylog2.alarmcallbacks.hipchat.HipChatAlarmCallback.getGraylogBaseUrl;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatTrigger.buildStreamDetailsURL;
+import static org.graylog2.alarmcallbacks.hipchat.HipChatTrigger.invalidTemplate;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 public class HipChatAlarmCallbackTest {
     private HipChatAlarmCallback alarmCallback;
@@ -133,5 +142,29 @@ public class HipChatAlarmCallbackTest {
     @Test
     public void testGetName() {
         assertThat(alarmCallback.getName(), equalTo("HipChat alarm callback"));
+    }
+
+    @Test
+    public void graylogBaseUrlRetrievalWorks() throws AlarmCallbackException, URISyntaxException {
+        assertNull(getGraylogBaseUrl(null));
+        assertEquals("Trailing '/' gets removed automatically",
+                new URI("https://test.graylog.com"), getGraylogBaseUrl(
+                        "https://test.graylog.com/"));
+    }
+
+    @Test(expected = AlarmCallbackException.class)
+    public void graylogBaseUrlRetrievalInvalidUri() throws AlarmCallbackException {
+        getGraylogBaseUrl("invalid URI");
+    }
+
+    @Test(expected = AlarmCallbackException.class)
+    public void buildStreamDetailsURLThrowsAlarmCallbackExceptionOnInvalidUrl() throws AlarmCallbackException, URISyntaxException {
+        buildStreamDetailsURL(new URI("http:///no/host"), null, null);
+    }
+
+    @Test
+    public void invalidTemplateCheckOk() {
+        assertTrue(invalidTemplate(null));
+        assertTrue(invalidTemplate(" "));
     }
 }
