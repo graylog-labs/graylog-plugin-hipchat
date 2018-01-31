@@ -1,7 +1,7 @@
 HipChat Plugin for Graylog
 ==========================
 
-[![Build Status](https://travis-ci.org/Graylog2/graylog-plugin-hipchat.svg)](https://travis-ci.org/Graylog2/graylog-plugin-hipchat)
+[![Build Status](https://travis-ci.org/graylog-labs/graylog-plugin-hipchat.svg)](https://travis-ci.org/graylog-labs/graylog-plugin-hipchat)
 
 An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog](https://www.graylog.org/).
 
@@ -11,7 +11,7 @@ Please use version 1.2.0 of this plugin if you are still running Graylog 1.x
 
 ## Installation
 
-[Download the plugin](https://github.com/Graylog2/graylog-plugin-hipchat/releases)
+[Download the plugin](https://github.com/graylog-labs/graylog-plugin-hipchat/releases)
 and place the `.jar` file in your Graylog plugin directory. The plugin directory
 is the `plugins/` directory relative from your Graylog installation path by default
 and can be configured in the `graylog.conf` file.

@@ -14,9 +14,9 @@
     <url>https://www.graylog.org</url>
 
     <scm>
-        <connection>scm:git:git@github.com:Graylog2/graylog-plugin-hipchat.git</connection>
-        <developerConnection>scm:git:git@github.com:Graylog2/graylog-plugin-hipchat.git</developerConnection>
-        <url>https://github.com/Graylog2/graylog-plugin-hipchat</url>
+        <connection>scm:git:git@github.com:graylog-labs/graylog-plugin-hipchat.git</connection>
+        <developerConnection>scm:git:git@github.com:graylog-labs/graylog-plugin-hipchat.git</developerConnection>
+        <url>https://github.com/graylog-labs/graylog-plugin-hipchat</url>
         <tag>HEAD</tag>
     </scm>
 
