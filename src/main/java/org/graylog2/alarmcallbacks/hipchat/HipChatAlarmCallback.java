@@ -149,7 +149,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
                 "Graylog base URL for linking to the stream (e.g. https://your.graylogserver.com).", ConfigurationField.Optional.OPTIONAL));
         configurationRequest.addField(new TextField(
                 CK_MESSAGE_TEMPLATE, "Message Template", "",
-                "Custom message template (same as email templates).", ConfigurationField.Optional.OPTIONAL));
+                "Custom message template (same as email templates).", ConfigurationField.Optional.OPTIONAL, TextField.Attribute.TEXTAREA));
 
         return configurationRequest;
     }
