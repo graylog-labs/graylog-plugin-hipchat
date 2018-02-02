@@ -1,6 +1,8 @@
 HipChat Plugin for Graylog
 ==========================
 
+[![Github Downloads](https://img.shields.io/github/downloads/graylog-labs/graylog-plugin-hipchat/total.svg)](https://github.com/graylog-labs/graylog-plugin-hipchat/releases)
+[![GitHub Release](https://img.shields.io/github/release/graylog-labs/graylog-plugin-hipchat.svg)](https://github.com/graylog-labs/graylog-plugin-hipchat/releases)
 [![Build Status](https://travis-ci.org/graylog-labs/graylog-plugin-hipchat.svg)](https://travis-ci.org/graylog-labs/graylog-plugin-hipchat)
 
 An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog](https://www.graylog.org/).
