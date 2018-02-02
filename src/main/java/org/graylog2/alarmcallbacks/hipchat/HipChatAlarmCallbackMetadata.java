@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.Set;
 
 public class HipChatAlarmCallbackMetadata implements PluginMetaData {
+    private static final String PLUGIN_PROPERTIES = "org.graylog.plugins.graylog-plugin-hipchat/graylog-plugin.properties";
     @Override
     public String getUniqueId() {
         return HipChatAlarmCallback.class.getCanonicalName();
@@ -50,7 +51,7 @@ public class HipChatAlarmCallbackMetadata implements PluginMetaData {
 
     @Override
     public Version getVersion() {
-        return new Version(1, 3, 0, "SNAPSHOT");
+        return Version.fromPluginProperties(getClass(), PLUGIN_PROPERTIES, "version", Version.from(1, 4, 0));
     }
 
     @Override
@@ -60,7 +61,7 @@ public class HipChatAlarmCallbackMetadata implements PluginMetaData {
 
     @Override
     public Version getRequiredVersion() {
-        return new Version(2, 0, 0);
+        return Version.fromPluginProperties(getClass(), PLUGIN_PROPERTIES, "graylog.version", Version.from(2, 4, 0));
     }
 
     @Override

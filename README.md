@@ -5,9 +5,10 @@ HipChat Plugin for Graylog
 
 An alarm callback plugin for integrating [HipChat](https://hipchat.com/) into [Graylog](https://www.graylog.org/).
 
-**Required Graylog version:** 2.0.0 and later.
+**Required Graylog version:** 2.4.0 and later.
 
-Please use version 1.2.0 of this plugin if you are still running Graylog 1.x
+* Please use version 1.2.0 of this plugin if you are still running Graylog 1.x.
+* Please use version 1.3.0 of this plugin if you are still running Graylog 2.0.x, 2.1.x, 2.2.x, or 2.3.x.
 
 ## Installation
 

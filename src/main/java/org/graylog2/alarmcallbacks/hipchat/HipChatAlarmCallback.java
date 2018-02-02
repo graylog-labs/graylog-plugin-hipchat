@@ -49,7 +49,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
     private static final String CK_MESSAGE_TEMPLATE = "message_template";
 
     // Valid colors; see https://www.hipchat.com/docs/apiv2/method/send_room_notification
-    private static final Map<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
+    private static final ImmutableMap<String, String> VALID_COLORS = ImmutableMap.<String, String>builder()
             .put("yellow", "yellow")
             .put("green", "green")
             .put("red", "red")
@@ -154,6 +154,7 @@ public class HipChatAlarmCallback implements AlarmCallback {
         return configurationRequest;
     }
 
+    @Override
     public String getName() {
         return NAME;
     }
